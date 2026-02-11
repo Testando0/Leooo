@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Cloudflare Leonardo Phoenix 1.0 - Gerador de Imagem</title>
+  <title>Leonardo Phoenix 1.0 (Cloudflare) - Teste com CORS Proxy</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,21 +32,20 @@
   </style>
 </head>
 <body>
-  <h1>Leonardo Phoenix 1.0 (Cloudflare Workers AI)</h1>
+  <h1>Leonardo Phoenix 1.0 (Cloudflare) — Teste via CORS Proxy</h1>
 
   <div class="warning">
-    ⚠️ <b>Aviso:</b> Isso é apenas para TESTE. Seu API Token ficará visível no navegador.
-    Não use assim em produção.
+    ⚠️ Apenas para TESTE. Seu token fica exposto e passa por um proxy público.
   </div>
 
   <label>Cloudflare Account ID</label>
-  <input id="accountId" placeholder="648085ab1193eeacc92d058d278a0d83" />
+  <input id="accountId" placeholder="Ex: 1234567890abcdef..." />
 
   <label>Cloudflare API Token</label>
-  <input id="apiToken" placeholder="EZnH74dXipNmuwQOtCAcW1oLQzJ5oKbTnpgBqJUI" />
+  <input id="apiToken" placeholder="Ex: cf_xxxxxxxxxxxxxxxxx" />
 
   <label>Prompt da imagem</label>
-  <textarea id="prompt" rows="4" placeholder="Ex: Um dragão realista voando sobre uma cidade medieval ao pôr do sol, ultra detalhado, arte digital"></textarea>
+  <textarea id="prompt" rows="4" placeholder="Ex: Um robô futurista em uma cidade cyberpunk, ultra detalhado, arte digital"></textarea>
 
   <button id="generateBtn">Gerar imagem</button>
 
@@ -72,9 +71,12 @@
       imgEl.src = "";
 
       try {
-        const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/leonardo/phoenix-1.0`;
+        const targetUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/leonardo/phoenix-1.0`;
 
-        const res = await fetch(url, {
+        // CORS proxy público
+        const proxyUrl = "https://proxycors.io/?";
+
+        const res = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${apiToken}`,
