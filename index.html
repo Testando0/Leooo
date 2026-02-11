@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloudflare Leonardo Phoenix 1.0 - Gerador de Imagem</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      max-width: 800px;
+      margin: auto;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+    button { cursor: pointer; }
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Leonardo Phoenix 1.0 (Cloudflare Workers AI)</h1>
+
+  <div class="warning">
+    ⚠️ <b>Aviso:</b> Isso é apenas para TESTE. Seu API Token ficará visível no navegador.
+    Não use assim em produção.
+  </div>
+
+  <label>Cloudflare Account ID</label>
+  <input id="accountId" placeholder="Ex: 1234567890abcdef..." />
+
+  <label>Cloudflare API Token</label>
+  <input id="apiToken" placeholder="Ex: cf_xxxxxxxxxxxxxxxxx" />
+
+  <label>Prompt da imagem</label>
+  <textarea id="prompt" rows="4" placeholder="Ex: Um dragão realista voando sobre uma cidade medieval ao pôr do sol, ultra detalhado, arte digital"></textarea>
+
+  <button id="generateBtn">Gerar imagem</button>
+
+  <div id="status"></div>
+  <img id="resultImage" />
+
+  <script>
+    const btn = document.getElementById("generateBtn");
+    const statusEl = document.getElementById("status");
+    const imgEl = document.getElementById("resultImage");
+
+    btn.onclick = async () => {
+      const accountId = document.getElementById("accountId").value.trim();
+      const apiToken = document.getElementById("apiToken").value.trim();
+      const prompt = document.getElementById("prompt").value.trim();
+
+      if (!accountId || !apiToken || !prompt) {
+        alert("Preencha Account ID, API Token e Prompt.");
+        return;
+      }
+
+      statusEl.textContent = "Gerando imagem...";
+      imgEl.src = "";
+
+      try {
+        const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/leonardo/phoenix-1.0`;
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            width: 1024,
+            height: 1024,
+            steps: 25,
+            guidance: 4
+          })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText);
+        }
+
+        const blob = await res.blob();
+        const imageUrl = URL.createObjectURL(blob);
+
+        imgEl.src = imageUrl;
+        statusEl.textContent = "Imagem gerada com sucesso!";
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Erro ao gerar imagem: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
